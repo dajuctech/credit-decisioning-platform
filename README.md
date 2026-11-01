@@ -17,6 +17,10 @@ The project covers four engineering domains working as **one system**:
 
 All data is synthetic. No real customer data is used.
 
+**Using it in a real lending business?** See [docs/business_adoption.md](docs/business_adoption.md): who uses
+which part, a loan request step by step, what to add before lending real money, compliance, switching to real
+data, and a safe rollout plan.
+
 ---
 
 ## 1. The business problem in plain words
@@ -250,6 +254,7 @@ credit-decisioning-platform/
   dashboard/app.py               Streamlit analyst dashboard
   tests/                         validation, features, models, API, monitoring (45 tests)
   docs/data_dictionary.md        tables, fields, features, outputs
+  docs/business_adoption.md      how a lender would use it, go-live checklist, rollout plan
   Dockerfile, docker-compose.yml, .env.example, Makefile, .github/workflows/ci.yml
 ```
 
@@ -287,3 +292,5 @@ credit-decisioning-platform/
 - Live loan outcomes are not known yet, so live monitoring watches inputs and decisions, not accuracy.
   `label_maturity` reminds you to join outcomes after 6 months.
 - Security (auth, IAM, encryption) is out of scope for this version. See the deployment notes for what to add.
+- Underwriter overrides are not recorded yet. The recommended design, plus the compliance checklist and rollout
+  plan, are in [docs/business_adoption.md](docs/business_adoption.md).
