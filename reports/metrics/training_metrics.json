@@ -1,0 +1,119 @@
+{
+  "model_version": "v1.0.0",
+  "champion": "random_forest",
+  "model_comparison": [
+    {
+      "model": "random_forest",
+      "validation_auc": 0.818,
+      "test_auc": 0.7885
+    },
+    {
+      "model": "gradient_boosting",
+      "validation_auc": 0.818,
+      "test_auc": 0.7807
+    },
+    {
+      "model": "logistic_regression",
+      "validation_auc": 0.8001,
+      "test_auc": 0.7771
+    }
+  ],
+  "thresholds": {
+    "approve_threshold": 0.8,
+    "decline_threshold": 0.7
+  },
+  "risk_appetite": {
+    "target_bad_rate_among_approved": 0.06,
+    "decline_below_score": 0.7
+  },
+  "calibration": {
+    "slope": 1.2310802480498249,
+    "intercept": 0.23350291516877228
+  },
+  "train": {
+    "rows": 6521,
+    "default_rate": 0.1461,
+    "roc_auc": 0.8842,
+    "precision": 0.4457,
+    "recall": 0.7272,
+    "f1": 0.5526,
+    "brier_score": 0.0891,
+    "expected_calibration_error": 0.0349,
+    "confusion_matrix": {
+      "true_negative": 4706,
+      "false_positive": 862,
+      "false_negative": 260,
+      "true_positive": 693
+    },
+    "auto_approval_rate": 0.7615,
+    "bad_rate_among_approved": 0.0524
+  },
+  "validation": {
+    "rows": 1275,
+    "default_rate": 0.1161,
+    "roc_auc": 0.818,
+    "precision": 0.3663,
+    "recall": 0.6014,
+    "f1": 0.4552,
+    "brier_score": 0.0829,
+    "expected_calibration_error": 0.0191,
+    "confusion_matrix": {
+      "true_negative": 973,
+      "false_positive": 154,
+      "false_negative": 59,
+      "true_positive": 89
+    },
+    "auto_approval_rate": 0.8094,
+    "bad_rate_among_approved": 0.0572
+  },
+  "test": {
+    "rows": 1459,
+    "default_rate": 0.0994,
+    "roc_auc": 0.7885,
+    "precision": 0.2978,
+    "recall": 0.4621,
+    "f1": 0.3622,
+    "brier_score": 0.0777,
+    "expected_calibration_error": 0.0148,
+    "confusion_matrix": {
+      "true_negative": 1156,
+      "false_positive": 158,
+      "false_negative": 78,
+      "true_positive": 67
+    },
+    "auto_approval_rate": 0.8458,
+    "bad_rate_among_approved": 0.0632
+  },
+  "manual_underwriter_test": {
+    "rows": 1459,
+    "default_rate": 0.0994,
+    "roc_auc": 0.6341,
+    "precision": 0.2654,
+    "recall": 0.3862,
+    "f1": 0.3146,
+    "brier_score": 0.1672,
+    "expected_calibration_error": 0.1576,
+    "confusion_matrix": {
+      "true_negative": 1159,
+      "false_positive": 155,
+      "false_negative": 89,
+      "true_positive": 56
+    },
+    "auto_approval_rate": 0.8554,
+    "bad_rate_among_approved": 0.0713
+  },
+  "training_window": {
+    "train": [
+      "2023-07-01",
+      "2024-12-31"
+    ],
+    "validation": [
+      "2025-01-01",
+      "2025-03-31"
+    ],
+    "test": [
+      "2025-04-01",
+      "2025-06-30"
+    ]
+  }
+}

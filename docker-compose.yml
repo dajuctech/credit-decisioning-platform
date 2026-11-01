@@ -1,0 +1,66 @@
+# Local "cloud" in one command:
+#
+#   docker compose up -d --build                 # API on :8000, dashboard on :8501
+#   docker compose --profile jobs run --rm monitor   # send live traffic + run monitoring + reports
+#   docker compose down                          # stop (add -v to delete the volumes)
+#
+# The named volumes play the role of cloud storage: the API writes decisions and
+# request logs, the monitoring job reads them, the dashboard shows the results.
+# The model itself stays inside the image (not a volume), so a rebuild always serves the new model.
+# After changing code or data generation, run `make docker-reset` so the volumes are rebuilt too.
+
+name: credit-decisioning
+
+# Shared settings. Only the api service builds the image; the others reuse it.
+x-app: &app
+  image: credit-decisioning:latest
+  env_file:
+    - path: .env
+      required: false
+  volumes:
+    - platform-data:/app/data
+    - platform-reports:/app/reports
+
+services:
+  api:
+    <<: *app
+    build: .
+    container_name: credit-api
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  dashboard:
+    <<: *app
+    pull_policy: never
+    container_name: credit-dashboard
+    command: ["streamlit", "run", "dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health', timeout=4)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  monitor:
+    <<: *app
+    pull_policy: never
+    container_name: credit-monitor
+    profiles: ["jobs"]
+    command: ["python", "-m", "src.run_pipeline", "--from", "simulate", "--api-url", "http://api:8000"]
+    healthcheck:
+      disable: true
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  platform-data:
+  platform-reports:

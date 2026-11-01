@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Lint, test and run the pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Unit and integration tests
+        run: uv run pytest
+
+      - name: Full pipeline (data -> model -> monitoring -> reports)
+        run: uv run python -m src.run_pipeline
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: reports/
+
+  docker:
+    name: Build image and smoke-test the container
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: docker build -t credit-decisioning:ci .
+
+      - name: Start container
+        run: docker run -d --name api -p 8000:8000 credit-decisioning:ci
+
+      - name: Wait for health
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8000/health && exit 0
+            sleep 2
+          done
+          docker logs api
+          exit 1
+
+      - name: Score an application
+        run: |
+          curl -sf -X POST http://localhost:8000/score \
+            -H 'Content-Type: application/json' \
+            -d '{"application_id":"APP-CI-1","borrower_id":"BOR-0301","requested_amount":25000}' | tee response.json
+          grep -q '"decision"' response.json
